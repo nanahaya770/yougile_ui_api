@@ -13,10 +13,19 @@ from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 import pytest
 import requests
-from conftest import HEADERS, BASE_URL, LOGIN, PASSWORD, MY_PROFILE_TEXT
-
-# TODO начать отправлять в github версии кода внося в них изменения
-# TODO написать ко всем assert пояснительные сообщения
+from conftest import (
+    HEADERS, 
+    BASE_URL, 
+    LOGIN, 
+    PASSWORD, 
+    MY_PROFILE_TEXT, 
+    IMPLICITLY_WAIT,
+    NUMBER_OF_SUBTASKS,
+    TITLE,
+    COLUMN_ID,
+    COUNTER_SUBTASKS,
+    COUNTER_COMPLETED
+)
     
 
 @pytest.fixture(scope='module', autouse=True)
@@ -31,7 +40,7 @@ def driver() -> Generator[WebDriver, None]:
     """
     service = ChromeService(ChromeDriverManager().install())
     browser: WebDriver = webdriver.Chrome(service=service)
-    browser.implicitly_wait(10)
+    browser.implicitly_wait(IMPLICITLY_WAIT)
     yield browser
     browser.quit()
 
@@ -74,7 +83,7 @@ def subtask_ids() -> Generator[list[str], None]:
     """
     subtask_list = []
     URL = f'{BASE_URL}/tasks'
-    for num_subtask_id in range(1, 6):
+    for num_subtask_id in range(1, NUMBER_OF_SUBTASKS + 1):
         body = {
             "title": f"подзадача {num_subtask_id}"
         }
@@ -103,8 +112,8 @@ def create_task(subtask_ids: Generator[list[str], None]) -> Generator[None, None
     """
     URL = f'{BASE_URL}/tasks'
     body_for_task = {
-        "title": "задача 1",
-        "columnId": "9650c331-4a86-40be-b73f-01e36928a2e0",
+        "title": TITLE,
+        "columnId": COLUMN_ID,
         "subtasks": subtask_ids
     }
     response = requests.post(URL, headers=HEADERS, json=body_for_task)
@@ -165,7 +174,7 @@ def test_counter_of_new_subtasks(driver: WebDriver) -> None:
     """
     driver.get("https://ru.yougile.com/team/941b14bd11e9/api-in-ui")
     counter = get_counter(driver)
-    assert counter.text == "0/5", "счетчик работает некорректно"
+    assert counter.text == COUNTER_SUBTASKS, "счетчик работает некорректно"
 
 
 def test_counter_completed_subtasks(driver: WebDriver, completed_subtasks: None) -> None:
@@ -180,7 +189,7 @@ def test_counter_completed_subtasks(driver: WebDriver, completed_subtasks: None)
     """
     driver.get("https://ru.yougile.com/team/941b14bd11e9/api-in-ui")
     counter = get_counter(driver)
-    assert counter.text == "5/5", "счетчик работает не корректно"
+    assert counter.text == COUNTER_COMPLETED, "счетчик работает не корректно"
 
 
 """
