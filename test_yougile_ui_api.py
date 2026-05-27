@@ -5,6 +5,8 @@ UI‑тест для yougile:
 до и после пометки подзадач как выполненных.
 """
 
+#TODO добавить firefox
+
 from typing import Generator
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -14,6 +16,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
 import pytest
 import requests
+from selenium.webdriver.edge.service import Service as EdgeService
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 from conftest import (
     HEADERS, 
     BASE_URL, 
@@ -29,8 +33,9 @@ from conftest import (
 )
     
 
-@pytest.fixture(scope='module', autouse=True)
-def driver() -> Generator[WebDriver, None]:
+
+@pytest.fixture(params=["edge", "chrome"], scope='module', autouse=True)
+def driver(request) -> Generator[WebDriver, None]:
     """Фикстура открывает браузер, возвращает driver
 
     Args:
@@ -39,8 +44,12 @@ def driver() -> Generator[WebDriver, None]:
     Returns:
         Generator[WebDriver, None]: Объект драйвера для браузера
     """
-    service = ChromeService(ChromeDriverManager().install())
-    browser: WebDriver = webdriver.Chrome(service=service)
+    if request.param == "edge":
+        service = EdgeService(EdgeChromiumDriverManager().install())
+        browser: WebDriver = webdriver.Edge(service=service)
+    else:
+        service = ChromeService(ChromeDriverManager().install())
+        browser: WebDriver = webdriver.Chrome(service=service)
     browser.implicitly_wait(IMPLICITLY_WAIT)
     yield browser
     browser.quit()
@@ -73,7 +82,7 @@ def autorization(driver: WebDriver) -> None:
 
 
 @pytest.fixture(scope='module', autouse=True)
-def subtask_ids() -> Generator[list[str], None]:
+def subtask_ids(driver: WebDriver) -> Generator[list[str], None]:
     """Создаёт подзадачи, возвращает список id подзадач
 
     Args:
@@ -192,6 +201,11 @@ def test_counter_completed_subtasks(driver: WebDriver, completed_subtasks: None)
     counter = get_counter(driver)
     assert counter.text == COUNTER_COMPLETED, "счетчик работает не корректно"
 
+    # Импорты (добавьте в начало файла вместе с остальными импортами)
+
+
+
+
 
 """
 ВАЖНО!!! прописать шаги как для ручного тестирования!!!
@@ -215,11 +229,11 @@ def test_counter_completed_subtasks(driver: WebDriver, completed_subtasks: None)
 TODO
 V соблюдать грамотный naming(название)
 ? декомпозиция, структурировать код(разделить на тестовые, фикстуры, на функции, на классы, на модули, на пакеты, библиотеки)
-V все константы перенести в conftest --start
+V все константы перенести в conftest 
 V все секретные данные перенести в .env
 - V указать type hints в определении функций (запустить mypy)
 V написать справку в виде DocString 
-создание файла readme с кратким описанием проекта 
+создание файла readme с кратким описанием проекта --start
 привести в соответствии с pep8
 по необходимости использовать allure(если работодатель требует, чаще allure размывает код)
 использовать git
