@@ -5,8 +5,6 @@ UI‑тест для yougile:
 до и после пометки подзадач как выполненных.
 """
 
-#TODO добавить firefox
-
 from typing import Generator
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -14,6 +12,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from webdriver_manager.firefox import GeckoDriverManager
 import pytest
 import requests
 from selenium.webdriver.edge.service import Service as EdgeService
@@ -34,7 +34,7 @@ from conftest import (
     
 
 
-@pytest.fixture(params=["edge", "chrome"], scope='module', autouse=True)
+@pytest.fixture(params=["edge", "firefox", "chrome"], scope='module', autouse=True)
 def driver(request) -> Generator[WebDriver, None]:
     """Фикстура открывает браузер, возвращает driver
 
@@ -47,6 +47,9 @@ def driver(request) -> Generator[WebDriver, None]:
     if request.param == "edge":
         service = EdgeService(EdgeChromiumDriverManager().install())
         browser: WebDriver = webdriver.Edge(service=service)
+    elif request.param == "firefox":
+        service = FirefoxService(GeckoDriverManager().install())
+        browser: WebDriver = webdriver.Firefox(service=service)
     else:
         service = ChromeService(ChromeDriverManager().install())
         browser: WebDriver = webdriver.Chrome(service=service)
