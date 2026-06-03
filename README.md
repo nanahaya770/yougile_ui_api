@@ -41,25 +41,25 @@
 	 cd C:\git_projects
 	 ```
 2. Клонировать репозиторий
-```bash
-git clone https://github.com/nanahaya770/yougile_ui_api.git
-```
+	```bash
+	git clone https://github.com/nanahaya770/yougile_ui_api.git
+	```
 3. Перейти в папку `yougile_ui_api`
-```bash
-cd yougile_ui_api
-```
+	```bash
+	cd yougile_ui_api
+	```
 4. Создать виртуальное окружение
-```bash
-python -m venv venv
-```
+	```bash
+	python -m venv venv
+	```
 5. Активировать виртуальное окружение
-```bash
-.\venv\Scripts\Activate.ps1
-```
+	```bash
+	.\venv\Scripts\Activate.ps1
+	```
 6. Установить зависимости с помощью файла requirements.txt
-```bash
- pip install -r requirements.txt
- ```
+	```bash
+	pip install -r requirements.txt
+	```
 
 ### На сайте ru.yougile.com 
 1. Создать акаунт
