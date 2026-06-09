@@ -1,7 +1,7 @@
 from typing import Generator
 from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver 
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -23,25 +23,18 @@ from conftest import (
 )
 
 
-@pytest.fixture(params=["edge", "firefox", "chrome"], scope='module', autouse=True)
-def driver(request) -> Generator[WebDriver, None]:
-    """Фикстура открывает браузер, возвращает driver
-
-    Args:
-        None
-
-    Returns:
-        Generator[WebDriver, None]: Объект драйвера для браузера
-    """
+@pytest.fixture(params=["edge", "firefox", "chrome"], scope="module", autouse=True)
+def driver(request) -> Generator[WebDriver, None, None]:
+    browser: WebDriver
     if request.param == "edge":
-        service = EdgeService(EdgeChromiumDriverManager().install())
-        browser: WebDriver = webdriver.Edge(service=service)
+        service_1 = EdgeService(EdgeChromiumDriverManager().install())
+        browser = webdriver.Edge(service=service_1)
     elif request.param == "firefox":
-        service = FirefoxService(GeckoDriverManager().install())
-        browser: WebDriver = webdriver.Firefox(service=service)
+        service_2 = FirefoxService(GeckoDriverManager().install())
+        browser = webdriver.Firefox(service=service_2)
     else:
-        service = ChromeService(ChromeDriverManager().install())
-        browser: WebDriver = webdriver.Chrome(service=service)
+        service_3 = ChromeService(ChromeDriverManager().install())
+        browser = webdriver.Chrome(service=service_3)
     browser.implicitly_wait(IMPLICITLY_WAIT)
     yield browser
     browser.quit()
@@ -74,7 +67,7 @@ def autorization(driver: WebDriver) -> None:
 
 
 @pytest.fixture(scope='module', autouse=True)
-def subtask_ids(driver: WebDriver) -> Generator[list[str], None]:
+def subtask_ids(driver: WebDriver) -> Generator[list[str], None, None]:
     """Создаёт подзадачи, возвращает список id подзадач
 
     Args:
@@ -118,7 +111,7 @@ def create_task(subtask_ids: Generator[list[str], None]) -> Generator[None, None
         "columnId": COLUMN_ID,
         "subtasks": subtask_ids
     }
-    response = requests.post(URL, headers=HEADERS, json=body_for_task)
+    response = requests.post(URL, headers=HEADERS, data=body_for_task)
     task_id = response.json()['id']
     yield 
     URL = f'{BASE_URL}/tasks/{task_id}'
